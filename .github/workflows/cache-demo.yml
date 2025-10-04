@@ -1,0 +1,38 @@
+name: Dependency Cache Demo
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Cache dependencies
+      - name: prime-cache-d80e054
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: cache-d80e054
+          restore-keys: |
+            cache-d80e054
+
+      - name: Check cache result
+        run: echo "Cache status: ${{ steps.cache.outputs.cache-hit }}"
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install requests
+
+      - name: Run test script
+        run: |
+          source venv/bin/activate
+          python -c "import requests; print('Cache action working fine!')"
